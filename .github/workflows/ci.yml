@@ -33,6 +33,7 @@ jobs:
       - run: bun run check
       - run: bun run lint
       - run: bun run test:unit -- --run
+      - run: bun run test:e2e
       - run: bun run build
         env:
           BASE_PATH: /${{ github.event.repository.name }}
@@ -60,6 +61,7 @@ jobs:
       - run: bun run check
       - run: bun run lint
       - run: bun run test:unit -- --run
+      - run: bun run test:e2e
       - run: bun run build
         env:
           BASE_PATH: /${{ github.event.repository.name }}

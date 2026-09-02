@@ -6,10 +6,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@import 'tailwindcss';
-
-@custom-variant dark (&:is(.dark *));
-
 :root {
 	--background: oklch(1 0 0);
 	--foreground: oklch(0.2674 0.009 248.1657);
@@ -241,4 +237,45 @@
 	html {
 		@apply font-sans;
 	}
+}
+
+@keyframes chip-enter {
+	from {
+		opacity: 0;
+	}
+}
+
+@keyframes heatmap-enter {
+	from {
+		opacity: 0;
+		transform: translateY(6px);
+	}
+}
+
+.chip-enter {
+	animation: chip-enter 140ms ease-out;
+}
+
+.heatmap-enter {
+	animation: heatmap-enter 180ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		scroll-behavior: auto !important;
+		transition-duration: 0.01ms !important;
+	}
+}
+
+html[data-animations='off'] *,
+html[data-animations='off'] *::before,
+html[data-animations='off'] *::after {
+	animation-duration: 0.01ms !important;
+	animation-iteration-count: 1 !important;
+	scroll-behavior: auto !important;
+	transition-duration: 0.01ms !important;
 }

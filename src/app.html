@@ -4,6 +4,20 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
+		<script>
+			let mode = 'system';
+			try {
+				const stored = localStorage.getItem('mode-watcher-mode');
+				if (stored === 'light' || stored === 'dark' || stored === 'system') mode = stored;
+			} catch {
+				// Browser storage is optional.
+			}
+			const dark =
+				mode === 'dark' ||
+				(mode === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+			document.documentElement.classList.toggle('dark', dark);
+			document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

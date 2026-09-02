@@ -250,6 +250,20 @@ export function validateDataset(input: unknown): ScheduleDataset {
 	const dataset = Schema.decodeUnknownSync(ScheduleDatasetSchema)(input);
 	if (dataset.subjects.length === 0 || dataset.times.length === 0)
 		throw new Error('Dataset is empty');
+	let previousTime: number | undefined;
+	for (const time of dataset.times) {
+		const match = /^(?:[01]\d|2[0-3]):(?:00|30)$/.exec(time);
+		if (!match) throw new Error(`Invalid dataset time: ${time}`);
+		const [hours, minutes] = time.split(':').map(Number);
+		const currentTime = hours * 60 + minutes;
+		if (previousTime !== undefined && currentTime === previousTime)
+			throw new Error(`Duplicate dataset time: ${time}`);
+		if (previousTime !== undefined && currentTime < previousTime)
+			throw new Error(`Unordered dataset time: ${time}`);
+		if (previousTime !== undefined && currentTime !== previousTime + BUCKET_MINUTES)
+			throw new Error(`Dataset times must use ${BUCKET_MINUTES}-minute increments`);
+		previousTime = currentTime;
+	}
 	if (
 		dataset.days.length !== DAYS.length ||
 		dataset.days.some((day, index) => day !== DAYS[index])

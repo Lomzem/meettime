@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	aggregateSchedule,
 	sumSelectedSubjects,
+	validateDataset,
 	type SourceClass,
 	type SourceMeeting
 } from './schedule';
@@ -40,6 +41,28 @@ function value(
 	const item = dataset.subjects.find(({ code }) => code === subject)!;
 	return item.values[dataset.days.indexOf(day)][dataset.times.indexOf(time)];
 }
+
+describe('dataset time validation', () => {
+	const validDataset = () =>
+		aggregateSchedule(
+			[
+				course({
+					meetings: [meeting({ start_time: '09.00.00.000000', end_time: '10.00.00.000000' })]
+				})
+			],
+			options
+		);
+
+	it.each([
+		[['9:00', '09:30'], 'Invalid dataset time'],
+		[['09:00', '09:15'], 'Invalid dataset time'],
+		[['09:00', '09:00'], 'Duplicate dataset time'],
+		[['09:30', '09:00'], 'Unordered dataset time'],
+		[['09:00', '10:00'], '30-minute increments']
+	])('rejects invalid time labels', (times, message) => {
+		expect(() => validateDataset({ ...validDataset(), times })).toThrow(message);
+	});
+});
 
 describe('schedule aggregation', () => {
 	it('expands one class across half-hour buckets but not the ending boundary', () => {
