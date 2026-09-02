@@ -1,31 +1,63 @@
-## Project Configuration
+## Project Rules
 
-- **Language**: TypeScript
-- **Package Manager**: bun
-- **Add-ons**: prettier, eslint, vitest, playwright, tailwindcss, sveltekit-adapter, ai-tools
+- Always use `bun`
 
----
+## UI Rules
 
-You are able to use the Svelte MCP server, where you have access to comprehensive Svelte 5 and SvelteKit documentation. Here's how to use the available tools effectively:
+- Always reach for `shadcn-svelte` before implementing UI manually
 
-## Available Svelte MCP Tools:
+## UI Workflow
 
-### 1. list-sections
+To verify correctness of UI use this subagent workflow:
 
-Use this FIRST to discover all available documentation sections. Returns a structured list with titles, use_cases, and paths.
-When asked about Svelte or SvelteKit topics, ALWAYS use this tool at the start of the chat to find relevant sections.
+- One agent (implementation agent) implements UI code changes
+- Another agent (review agent) reviews the UI with screenshots and Playwright
+- The review agent either approves or disapproves with feedback
+- If disapprove, send review to implementation agent
+- Keep looping until review agent approves
 
-### 2. get-documentation
+Only use this workflow when the user explicitly requests it.
 
-Retrieves full documentation content for specific sections. Accepts single or multiple sections.
-After calling the list-sections tool, you MUST analyze the returned documentation sections (especially the use_cases field) and then use the get-documentation tool to fetch ALL documentation sections that are relevant for the user's task.
+## Writing Tests
 
-### 3. svelte-autofixer
+Avoid writing **change-detector tests**:
 
-Analyzes Svelte code and returns issues and suggestions.
-You MUST use this tool whenever writing Svelte code before sending it to the user. Keep calling it until no issues or suggestions are returned.
+```
+Testing on the Toilet: Change-Detector Tests Considered Harmful
+Tuesday, January 27, 2015
+by Alex Eagle
 
-### 4. playground-link
+This article was adapted from a Google Testing on the Toilet (TotT) episode. You can download a printer-friendly version of this TotT episode and post it in your office.
 
-Generates a Svelte Playground link with the provided code.
-After completing the code, ask the user if they want a playground link. Only call this tool after user confirmation and NEVER if code was written to files in their project.
+You have just finished refactoring some code without modifying its behavior. Then you run the tests before committing and… a bunch of unit tests are failing. While fixing the tests, you get a sense that you are wasting time by mechanically applying the same transformation to many tests. Maybe you introduced a parameter in a method, and now must update 100 callers of that method in tests to pass an empty string.
+
+What does it look like to write tests mechanically? Here is an absurd but obvious way:
+// Production code:
+def abs(i: Int)
+  return (i < 0) ? i * -1 : i
+
+// Test code:
+for (line: String in File(prod_source).read_lines())
+  switch (line.number)
+    1: assert line.content equals "def abs(i: Int)"
+    2: assert line.content equals "  return (i < 0) ? i * -1 : i"
+
+That test is clearly not useful: it contains an exact copy of the code under test and acts like a checksum. A correct or incorrect program is equally likely to pass a test that is a derivative of the code under test. No one is really writing tests like that, but how different is it from this next example?
+// Production code:
+def process(w: Work)
+  firstPart.process(w)
+  secondPart.process(w)
+
+// Test code:
+part1 = mock(FirstPart)
+part2 = mock(SecondPart)
+w = Work()
+Processor(part1, part2).process(w)
+verify_in_order
+  was_called part1.process(w)
+  was_called part2.process(w)
+
+It is tempting to write a test like this because it requires little thought and will run quickly. This is a change-detector test—it is a transformation of the same information in the code under test—and it breaks in response to any change to the production code, without verifying correct behavior of either the original or modified production code.
+
+Change detectors provide negative value, since the tests do not catch any defects, and the added maintenance cost slows down development. These tests should be re-written or deleted.
+```
