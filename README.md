@@ -1,42 +1,42 @@
-# sv
+# Chico State Meettime
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A static heatmap of Chico State scheduled in-person class enrollment by subject, weekday, and time.
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
+## Local development
 
 ```sh
-# create a new project
-npx sv create my-app
+bun install
+bun run update:data
+bun run dev
 ```
 
-To recreate this project with the same configuration:
+Validation:
 
 ```sh
-# recreate this project
-bun x sv@0.17.0 create --template minimal --types ts --add prettier eslint vitest="usages:unit,component" playwright tailwindcss="plugins:none" sveltekit-adapter="adapter:static" ai-tools="ide:other" --install bun meettime
+bun run check
+bun run lint
+bun run test:unit -- --run
+BASE_PATH=/meettime bun run build
 ```
 
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Set `SCHEDULE_TERM` only to override Chico's current default term:
 
 ```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+SCHEDULE_TERM=2272 bun run update:data
 ```
 
-## Building
+## Data pipeline
 
-To create a production version of your app:
+`scripts/update-schedule-data.ts` opens Chico's public class search with a cookie-preserving session, reads its configured term, validates every response, and follows the API's `pageCount` sequentially. It keeps meetings active on the current `America/Los_Angeles` date, includes modes `P`, `H`, `S`, and `X`, and aggregates enrollment into 30-minute buckets.
 
-```sh
-npm run build
-```
+The updater validates a temporary file before atomically replacing `static/schedule.json`. A failed term lookup, page request, parse, or validation leaves the previous file unchanged.
 
-You can preview the production build with `npm run preview`.
+The daily and manual GitHub Actions refreshes run the updater, checks, tests, and static build before committing the JSON and deploying to GitHub Pages. Pushes made with `GITHUB_TOKEN` do not recursively start the workflow.
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+## Meaning and limitations
+
+The heatmap shows **scheduled in-person enrollment, not attendance**. It is a daily snapshot of meeting schedules active on the refresh date. Fully online and ambiguous “possible in person” modes are excluded.
+
+Repeated meetings within one class are deduplicated. Distinct combined or cross-listed class numbers remain separate because their enrollment totals are separate allocations and the API provides no reliable combined-group identifier.
+
+The public JSON contains only term metadata, generation dates, subject labels, time buckets, and aggregate counts. It excludes buildings, rooms, facilities, instructors, class identifiers, student identities, and raw API records.

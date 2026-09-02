@@ -42,11 +42,14 @@
 	export type ButtonVariant = VariantProps<typeof buttonVariants>['variant'];
 	export type ButtonSize = VariantProps<typeof buttonVariants>['size'];
 
-	export type ButtonProps = WithElementRef<HTMLButtonAttributes> &
-		WithElementRef<HTMLAnchorAttributes> & {
-			variant?: ButtonVariant;
-			size?: ButtonSize;
-		};
+	export type ButtonProps = Omit<
+		WithElementRef<HTMLButtonAttributes> & WithElementRef<HTMLAnchorAttributes>,
+		'href'
+	> & {
+		href?: Parameters<typeof resolve>[0];
+		variant?: ButtonVariant;
+		size?: ButtonSize;
+	};
 </script>
 
 <script lang="ts">

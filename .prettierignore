@@ -7,3 +7,5 @@ bun.lockb
 
 # Miscellaneous
 /static/
+/PROJECT_SPEC.md
+/pycurl/

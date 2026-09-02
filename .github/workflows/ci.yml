@@ -5,28 +5,79 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    - cron: '17 3 * * *'
+      timezone: America/Los_Angeles
+  workflow_dispatch:
+    inputs:
+      term:
+        description: Optional Chico term override
+        required: false
+        type: string
 
-permissions:
-  contents: read
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
+      - run: bun run check
       - run: bun run lint
+      - run: bun run test:unit -- --run
+      - run: bun run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}
+      - uses: actions/upload-pages-artifact@v5
+        if: github.event_name == 'push'
+        with:
+          path: build
+
+  refresh:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Update schedule data
+        run: bun run update:data
+        env:
+          SCHEDULE_TERM: ${{ inputs.term }}
+      - run: bun run check
+      - run: bun run lint
+      - run: bun run test:unit -- --run
       - run: bun run build
         env:
           BASE_PATH: /${{ github.event.repository.name }}
       - uses: actions/upload-pages-artifact@v5
         with:
           path: build
+      - name: Commit schedule data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add static/schedule.json
+          git commit -m "chore(data): refresh schedule"
+          git push
 
   deploy:
-    if: github.event_name == 'push'
-    needs: build
+    if: >-
+      always() &&
+      ((github.event_name == 'push' && needs.build.result == 'success') ||
+      ((github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && needs.refresh.result == 'success'))
+    needs: [build, refresh]
     runs-on: ubuntu-latest
     permissions:
       pages: write
