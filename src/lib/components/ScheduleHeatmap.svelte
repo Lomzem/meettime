@@ -6,16 +6,10 @@
 	let {
 		dataset,
 		totals,
-		showWeekends,
 		reveal
-	}: {
-		dataset: ScheduleDataset;
-		totals: number[][];
-		showWeekends: boolean;
-		reveal: boolean;
-	} = $props();
+	}: { dataset: ScheduleDataset; totals: number[][]; reveal: boolean } = $props();
 
-	let visibleDayCount = $derived(showWeekends ? 7 : 5);
+	let visibleDayCount = $derived(preferences.showWeekends ? 7 : 5);
 	let visibleTimeIndexes = $derived(getVisibleTimeIndexes(dataset.times, totals, visibleDayCount));
 	let maximum = $derived(Math.max(0, ...totals.slice(0, visibleDayCount).flat()));
 
@@ -34,7 +28,27 @@
 	class:heatmap-enter={reveal}
 	class="flex min-w-0 flex-col gap-3"
 >
-	<h2 id="heatmap-heading" class="text-lg font-semibold">Schedule heatmap</h2>
+	<div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+		<h2 id="heatmap-heading" class="font-heading text-lg font-semibold tracking-[-0.015em]">
+			Schedule heatmap
+		</h2>
+		{#if maximum > 0}
+			<div
+				role="img"
+				aria-label="Relative enrollment: lower to higher."
+				class="flex shrink-0 items-center gap-2 text-xs text-muted-foreground"
+			>
+				<span aria-hidden="true">Less busy</span>
+				<span aria-hidden="true" class="flex overflow-hidden rounded-sm border">
+					<span class="h-3 w-4 bg-chart-1/15"></span>
+					<span class="h-3 w-4 bg-chart-1/30"></span>
+					<span class="h-3 w-4 bg-chart-1/50"></span>
+					<span class="h-3 w-4 bg-chart-1"></span>
+				</span>
+				<span aria-hidden="true">Busier</span>
+			</div>
+		{/if}
+	</div>
 	{#if visibleTimeIndexes.length === 0}
 		<p
 			role="status"
@@ -44,7 +58,7 @@
 			No class times for the selected subjects on the enabled days.
 		</p>
 	{:else}
-		<div class="rounded-lg border">
+		<div class="rounded-lg border bg-card text-card-foreground">
 			<table class="w-full table-fixed border-collapse text-center text-xs sm:text-sm">
 				<caption class="sr-only">Enrollment by weekday and time</caption>
 				<colgroup>
@@ -55,13 +69,13 @@
 					<tr>
 						<th
 							scope="col"
-							class="sticky top-0 z-10 border-b bg-background px-0.5 py-1.5 text-left font-medium sm:px-3 sm:py-2"
+							class="sticky top-0 z-10 border-b bg-card px-0.5 py-1.5 text-left font-medium sm:px-3 sm:py-2"
 							>Time</th
 						>
 						{#each dataset.days.slice(0, visibleDayCount) as day (day)}
 							<th
 								scope="col"
-								class="sticky top-0 z-10 border-b bg-background px-0.5 py-1.5 font-medium sm:px-3 sm:py-2"
+								class="sticky top-0 z-10 border-b bg-card px-0.5 py-1.5 font-medium sm:px-3 sm:py-2"
 							>
 								<span class="sm:hidden" aria-hidden="true">{day.slice(0, 3)}</span>
 								<span class="sr-only sm:not-sr-only sm:inline">{day}</span>
@@ -75,7 +89,7 @@
 						<tr>
 							<th
 								scope="row"
-								class="border-t px-0.5 py-1.5 text-left text-[11px] leading-tight font-normal sm:px-3 sm:py-2 sm:text-sm"
+								class="border-t px-0.5 py-1.5 text-left text-[11px] leading-tight font-normal tabular-nums sm:px-3 sm:py-2 sm:text-sm"
 								>{time}</th
 							>
 							{#each dataset.days.slice(0, visibleDayCount) as day, dayIndex (day)}

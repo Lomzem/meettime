@@ -65,7 +65,7 @@ describe('dataset time validation', () => {
 });
 
 describe('schedule aggregation', () => {
-	it('expands one class across half-hour buckets but not the ending boundary', () => {
+	it('expands one class across half-hour buckets and keeps the base display range', () => {
 		const dataset = aggregateSchedule([course()], options);
 		expect(value(dataset, 'CSCI', 'Monday', '10:00')).toBe(30);
 		expect(value(dataset, 'CSCI', 'Monday', '10:30')).toBe(30);
@@ -74,7 +74,9 @@ describe('schedule aggregation', () => {
 			[course({ meetings: [meeting({ end_time: '10.30.00.000000' })] })],
 			options
 		);
-		expect(boundary.times).toEqual(['10:00']);
+		expect(boundary.times[0]).toBe('07:00');
+		expect(boundary.times.at(-1)).toBe('19:00');
+		expect(value(boundary, 'CSCI', 'Monday', '10:30')).toBe(0);
 	});
 
 	it('adds overlapping classes and selected subjects', () => {

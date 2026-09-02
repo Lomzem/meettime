@@ -17,29 +17,29 @@ describe('formatTimeLabel', () => {
 });
 
 describe('getVisibleTimeIndexes', () => {
-	const times = ['08:00', '08:30', '09:00'];
+	const times = ['06:30', '07:00', '07:30', '19:00', '19:30', '20:00'];
 	const totals = [
-		[0, 2, 0],
-		[0, 0, 0],
-		[0, 0, 0],
-		[0, 0, 0],
-		[0, 0, 0],
-		[3, 0, 0],
-		[0, 0, 4]
+		[2, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 4],
+		[0, 0, 0, 0, 0, 0]
 	];
 
-	it('uses weekdays unless weekends are enabled', () => {
-		expect(getVisibleTimeIndexes(times, totals, 5)).toEqual([1]);
-		expect(getVisibleTimeIndexes(times, totals, 7)).toEqual([0, 1, 2]);
+	it('always includes the base range and active rows outside it', () => {
+		expect(getVisibleTimeIndexes(times, totals, 5)).toEqual([0, 1, 2, 3]);
+		expect(getVisibleTimeIndexes(times, totals, 7)).toEqual([0, 1, 2, 3, 5]);
 	});
 
-	it('returns no rows when all enabled values are zero', () => {
+	it('hides empty rows outside the base range', () => {
 		expect(
 			getVisibleTimeIndexes(
 				times,
-				totals.map(() => [0, 0, 0]),
+				totals.map(() => [0, 0, 0, 0, 0, 0]),
 				7
 			)
-		).toEqual([]);
+		).toEqual([1, 2, 3]);
 	});
 });

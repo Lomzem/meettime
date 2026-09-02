@@ -13,6 +13,11 @@ export function getVisibleTimeIndexes(
 	visibleDayCount: number
 ): number[] {
 	return times
-		.map((_, index) => index)
-		.filter((index) => totals.slice(0, visibleDayCount).some((dayTotals) => dayTotals[index] > 0));
+		.map((time, index) => ({ time, index }))
+		.filter(
+			({ time, index }) =>
+				(time >= '07:00' && time <= '19:00') ||
+				totals.slice(0, visibleDayCount).some((dayTotals) => dayTotals[index] > 0)
+		)
+		.map(({ index }) => index);
 }

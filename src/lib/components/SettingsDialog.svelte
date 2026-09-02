@@ -20,63 +20,32 @@
 	<Dialog.Content class="gap-4 p-4 sm:p-6">
 		<Dialog.Header>
 			<Dialog.Title>Settings</Dialog.Title>
-			<Dialog.Description>Adjust display and keyboard preferences.</Dialog.Description>
 		</Dialog.Header>
 
 		<div class="divide-y">
 			<div class="flex items-center justify-between gap-4 py-3 first:pt-0">
-				<div>
-					<label for="dark-mode" class="font-medium">Dark mode</label>
-					<p id="dark-mode-description" class="text-xs text-muted-foreground">
-						Use the dark color scheme.
-					</p>
-				</div>
+				<label for="dark-mode" class="font-medium">Dark mode</label>
 				<Switch
 					id="dark-mode"
 					checked={theme.dark}
 					onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
-					aria-describedby="dark-mode-description"
 				/>
 			</div>
 			<div class="flex items-center justify-between gap-4 py-3">
-				<div>
-					<label for="animations" class="font-medium">Animations</label>
-					<p id="animations-description" class="text-xs text-muted-foreground">
-						Use brief interface motion.
-					</p>
-				</div>
-				<Switch
-					id="animations"
-					bind:checked={preferences.animationsEnabled}
-					aria-describedby="animations-description"
-				/>
-			</div>
-			<div class="flex items-center justify-between gap-4 py-3">
-				<div>
-					<label for="time-format" class="font-medium">24-hour time</label>
-					<p id="time-format-description" class="text-xs text-muted-foreground">
-						Show times such as 13:30.
-					</p>
-				</div>
+				<label for="time-format" class="font-medium">24-hour time</label>
 				<Switch
 					id="time-format"
 					checked={preferences.timeFormat === '24h'}
 					onCheckedChange={(checked) => (preferences.timeFormat = checked ? '24h' : '12h')}
-					aria-describedby="time-format-description"
 				/>
 			</div>
+			<div class="flex items-center justify-between gap-4 py-3">
+				<label for="weekends" class="font-medium">Weekends</label>
+				<Switch id="weekends" bind:checked={preferences.showWeekends} />
+			</div>
 			<div class="flex items-center justify-between gap-4 py-3 last:pb-0">
-				<div>
-					<label for="keyboard-shortcut" class="font-medium">Keyboard shortcut</label>
-					<p id="keyboard-shortcut-description" class="text-xs text-muted-foreground">
-						Open subject search with Mod+K.
-					</p>
-				</div>
-				<Switch
-					id="keyboard-shortcut"
-					bind:checked={preferences.shortcutsEnabled}
-					aria-describedby="keyboard-shortcut-description"
-				/>
+				<label for="animations" class="font-medium">Animations</label>
+				<Switch id="animations" bind:checked={preferences.animationsEnabled} />
 			</div>
 		</div>
 	</Dialog.Content>

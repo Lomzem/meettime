@@ -71,6 +71,8 @@ const DAY_TOKENS: ReadonlyArray<readonly [string, Day]> = [
 	['Su', 'Sunday']
 ];
 const BUCKET_MINUTES = 30;
+const DISPLAY_START_MINUTES = 7 * 60;
+const DISPLAY_END_MINUTES = 19 * 60;
 
 function parseDate(value: string, field: string): string {
 	const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
@@ -196,9 +198,11 @@ export function aggregateSchedule(
 	if (timedMeetings.length === 0) throw new Error('No active in-person meetings found');
 
 	const firstBucket = Math.min(
+		DISPLAY_START_MINUTES,
 		...timedMeetings.map(({ start }) => Math.floor(start / BUCKET_MINUTES) * BUCKET_MINUTES)
 	);
 	const lastBucket = Math.max(
+		DISPLAY_END_MINUTES,
 		...timedMeetings.map(
 			({ end }) => Math.ceil(end / BUCKET_MINUTES) * BUCKET_MINUTES - BUCKET_MINUTES
 		)
