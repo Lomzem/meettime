@@ -2,6 +2,7 @@
 	import { Command as CommandPrimitive } from 'bits-ui';
 	import * as InputGroup from '$lib/components/ui/input-group/index.js';
 	import MagnifyingGlassIcon from 'phosphor-svelte/lib/MagnifyingGlass';
+	import XIcon from 'phosphor-svelte/lib/X';
 	import { cn } from '$lib/utils.js';
 
 	let {
@@ -32,5 +33,23 @@
 		<InputGroup.Addon>
 			<MagnifyingGlassIcon class="size-4 shrink-0 opacity-50" />
 		</InputGroup.Addon>
+		{#if value !== ''}
+			<InputGroup.Addon align="inline-end">
+				<InputGroup.Button
+					type="button"
+					size="icon-xs"
+					aria-label="Clear subject search"
+					onkeydown={(event) => {
+						if (event.key === 'Enter') event.stopPropagation();
+					}}
+					onclick={() => {
+						value = '';
+						ref?.focus();
+					}}
+				>
+					<XIcon aria-hidden="true" />
+				</InputGroup.Button>
+			</InputGroup.Addon>
+		{/if}
 	</InputGroup.Root>
 </div>

@@ -75,9 +75,50 @@ test('subject search exposes native scrolling and avoids iOS focus zoom', async 
 
 		await input.fill('computer');
 		await expect(input).toHaveValue('computer');
-		await input.fill('');
+		const clearSearch = page.getByRole('button', { name: 'Clear subject search' });
+		await expect(clearSearch).toBeVisible();
+		const inputBox = await input.boundingBox();
+		const clearBox = await clearSearch.boundingBox();
+		expect(inputBox).not.toBeNull();
+		expect(clearBox).not.toBeNull();
+		expect(inputBox!.x + inputBox!.width).toBeLessThanOrEqual(clearBox!.x);
+		await clearSearch.click();
+		await expect(input).toHaveValue('');
 		await page.keyboard.press('Escape');
 		await expect(input).toBeHidden();
+	}
+});
+
+test('subject search clears by pointer and keyboard without changing selection', async ({
+	page
+}) => {
+	await selectFirstSubject(page);
+	const subjectPicker = page.locator('[data-slot="popover-trigger"][role="combobox"]');
+	await subjectPicker.click();
+	const input = page.getByPlaceholder('Search subjects…');
+	const items = page.locator('[data-slot="command-item"]');
+	const completeSubjectCount = await items.count();
+	const clearSearch = page.getByRole('button', { name: 'Clear subject search' });
+	await expect(clearSearch).toHaveCount(0);
+
+	for (const activation of ['click', 'Enter', 'Space'] as const) {
+		await input.fill('computer');
+		await expect(clearSearch).toBeVisible();
+		expect(await items.count()).toBeLessThan(completeSubjectCount);
+
+		if (activation === 'click') {
+			await clearSearch.click();
+		} else {
+			await clearSearch.focus();
+			await page.keyboard.press(activation);
+		}
+
+		await expect(input).toHaveValue('');
+		await expect(input).toBeFocused();
+		await expect(clearSearch).toHaveCount(0);
+		await expect(subjectPicker).toHaveAttribute('aria-expanded', 'true');
+		await expect(items).toHaveCount(completeSubjectCount);
+		await expect(subjectPicker).toContainText('1 selected');
 	}
 });
 
