@@ -161,6 +161,9 @@ test('help dialog is modal, concise, and restores focus', async ({ page }) => {
 	await help.click();
 	const dialog = page.getByRole('dialog');
 	await expect(dialog).toContainText('Select subjects to see enrollment by day and time.');
+	await expect(dialog).toContainText(
+		'The heatmap uses enrollment totals. It does not measure how many people are physically present.'
+	);
 	await expect(dialog).toContainText('The data comes from the Student Center. It updates daily.');
 	const overlay = page.locator('[data-slot="dialog-overlay"]');
 	const overlayStyle = await overlay.evaluate((element) => ({
