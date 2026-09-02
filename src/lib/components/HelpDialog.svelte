@@ -18,12 +18,9 @@
 		<Dialog.Header>
 			<Dialog.Title>Help</Dialog.Title>
 		</Dialog.Header>
-		<div class="space-y-2 text-sm text-muted-foreground">
-			<p>Select subjects to see class times.</p>
-			<p>Darker cells have higher enrollment.</p>
-			<p>
-				The table shows 7:00 am to 7:00 pm and other class times. Use Settings to show weekends.
-			</p>
+		<div class="space-y-2 text-sm text-foreground">
+			<p>Select subjects to see enrollment by day and time.</p>
+			<p>The data comes from the Student Center. It updates daily.</p>
 		</div>
 	</Dialog.Content>
 </Dialog.Root>

@@ -24,31 +24,26 @@
 </script>
 
 <section
-	aria-labelledby="heatmap-heading"
+	aria-label="Enrollment by day and time"
 	class:heatmap-enter={reveal}
 	class="flex min-w-0 flex-col gap-3"
 >
-	<div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-		<h2 id="heatmap-heading" class="font-heading text-lg font-semibold tracking-[-0.015em]">
-			Schedule heatmap
-		</h2>
-		{#if maximum > 0}
-			<div
-				role="img"
-				aria-label="Relative enrollment: lower to higher."
-				class="flex shrink-0 items-center gap-2 text-xs text-muted-foreground"
-			>
-				<span aria-hidden="true">Less busy</span>
-				<span aria-hidden="true" class="flex overflow-hidden rounded-sm border">
-					<span class="h-3 w-4 bg-chart-1/15"></span>
-					<span class="h-3 w-4 bg-chart-1/30"></span>
-					<span class="h-3 w-4 bg-chart-1/50"></span>
-					<span class="h-3 w-4 bg-chart-1"></span>
-				</span>
-				<span aria-hidden="true">Busier</span>
-			</div>
-		{/if}
-	</div>
+	{#if maximum > 0}
+		<div
+			role="img"
+			aria-label="Relative enrollment: lower to higher."
+			class="flex shrink-0 items-center justify-end gap-2 text-xs text-muted-foreground"
+		>
+			<span aria-hidden="true">Lower enrollment</span>
+			<span aria-hidden="true" class="flex overflow-hidden rounded-sm border">
+				<span class="h-3 w-4 bg-chart-1/15"></span>
+				<span class="h-3 w-4 bg-chart-1/30"></span>
+				<span class="h-3 w-4 bg-chart-1/50"></span>
+				<span class="h-3 w-4 bg-chart-1"></span>
+			</span>
+			<span aria-hidden="true">Higher enrollment</span>
+		</div>
+	{/if}
 	{#if visibleTimeIndexes.length === 0}
 		<p
 			role="status"
@@ -62,7 +57,7 @@
 			<table class="w-full table-fixed border-collapse text-center text-xs sm:text-sm">
 				<caption class="sr-only">Enrollment by weekday and time</caption>
 				<colgroup>
-					<col class="w-14 sm:w-20" />
+					<col class="w-16 sm:w-20" />
 					{#each dataset.days.slice(0, visibleDayCount) as day (day)}<col />{/each}
 				</colgroup>
 				<thead>
@@ -89,7 +84,7 @@
 						<tr>
 							<th
 								scope="row"
-								class="border-t px-0.5 py-1.5 text-left text-[11px] leading-tight font-normal tabular-nums sm:px-3 sm:py-2 sm:text-sm"
+								class="border-t px-0.5 py-1.5 text-left text-[11px] leading-tight font-normal whitespace-nowrap tabular-nums sm:px-3 sm:py-2 sm:text-sm"
 								>{time}</th
 							>
 							{#each dataset.days.slice(0, visibleDayCount) as day, dayIndex (day)}

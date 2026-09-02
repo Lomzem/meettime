@@ -265,7 +265,7 @@
 							</Badge>
 						{/each}
 					</div>
-					<Button variant="ghost" size="sm" class="self-end" onclick={clearSubjects}
+					<Button variant="outline" size="sm" class="self-end" onclick={clearSubjects}
 						>Clear all</Button
 					>
 				</div>
