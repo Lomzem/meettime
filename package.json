@@ -50,6 +50,7 @@
 		"vitest-browser-svelte": "^2.1.1"
 	},
 	"dependencies": {
-		"@fontsource-variable/rubik": "^5.3.0"
+		"@fontsource-variable/rubik": "^5.3.0",
+		"effect": "^4.0.0-rc.112"
 	}
 }
