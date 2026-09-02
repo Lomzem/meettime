@@ -1,6 +1,7 @@
 ## Project Rules
 
 - Always use `bun`
+- Reach for effect-ts as much as you can when writing TypeScript. Use Context7 to find good Effect patterns.
 
 ## UI Rules
 
