@@ -42,6 +42,45 @@ test('Mod+K focuses search and remains disabled while a dialog is open', async (
 	await expect(page.getByPlaceholder('Search subjects…')).toBeHidden();
 });
 
+test('subject search exposes native scrolling and avoids iOS focus zoom', async ({ page }) => {
+	const viewport = await page.locator('meta[name="viewport"]').getAttribute('content');
+	expect(viewport).toContain('width=device-width');
+	expect(viewport).not.toContain('user-scalable=no');
+	expect(viewport).not.toContain('maximum-scale');
+
+	const subjectPicker = page.locator('[data-slot="popover-trigger"][role="combobox"]');
+	for (const size of [
+		{ width: 390, height: 844 },
+		{ width: 844, height: 390 },
+		{ width: 1280, height: 800 }
+	]) {
+		await page.setViewportSize(size);
+		await subjectPicker.click();
+		const input = page.getByPlaceholder('Search subjects…');
+		await input.focus();
+		expect(
+			await input.evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize))
+		).toBeGreaterThanOrEqual(16);
+
+		const list = page.locator('[data-slot="command-list"]');
+		const overflow = await list.evaluate((element) => ({
+			overflowY: getComputedStyle(element).overflowY,
+			scrollbarWidth: getComputedStyle(element).scrollbarWidth,
+			scrollHeight: element.scrollHeight,
+			clientHeight: element.clientHeight
+		}));
+		expect(overflow.overflowY).toBe('auto');
+		expect(overflow.scrollbarWidth).not.toBe('none');
+		expect(overflow.scrollHeight).toBeGreaterThan(overflow.clientHeight);
+
+		await input.fill('computer');
+		await expect(input).toHaveValue('computer');
+		await input.fill('');
+		await page.keyboard.press('Escape');
+		await expect(input).toBeHidden();
+	}
+});
+
 test('display preferences persist and weekends default to off', async ({ page }) => {
 	await page.getByRole('button', { name: 'Settings' }).click();
 	expect(await page.getByRole('dialog').locator('label').allTextContents()).toEqual([
@@ -95,6 +134,14 @@ test('selected subjects persist, reject stale values, and clear with focus resto
 	await expect(legend).toBeVisible();
 	await expect(legend).toContainText('Lower enrollment');
 	await expect(legend).toContainText('Higher enrollment');
+	await expect(page.getByRole('table')).toHaveAttribute('aria-describedby', 'enrollment-legend');
+	const legendGap = await legend.evaluate((element) => {
+		const legendRect = element.getBoundingClientRect();
+		const tableRect = document.querySelector('table')!.getBoundingClientRect();
+		return tableRect.top - legendRect.bottom;
+	});
+	expect(legendGap).toBeGreaterThanOrEqual(0);
+	expect(legendGap).toBeLessThanOrEqual(8);
 	await expect(page.getByRole('rowheader', { name: '7:00 am' })).toBeVisible();
 	await expect(page.getByRole('rowheader', { name: '7:00 pm' })).toBeVisible();
 	await expect
@@ -161,9 +208,6 @@ test('help dialog is modal, concise, and restores focus', async ({ page }) => {
 	await help.click();
 	const dialog = page.getByRole('dialog');
 	await expect(dialog).toContainText('Select subjects to see enrollment by day and time.');
-	await expect(dialog).toContainText(
-		'The heatmap uses enrollment totals. It does not measure how many people are physically present.'
-	);
 	await expect(dialog).toContainText('The data comes from the Student Center. It updates daily.');
 	const overlay = page.locator('[data-slot="dialog-overlay"]');
 	const overlayStyle = await overlay.evaluate((element) => ({
@@ -182,6 +226,19 @@ test('help dialog is modal, concise, and restores focus', async ({ page }) => {
 	expect(colors.body).toBe(colors.dialog);
 	await page.keyboard.press('Escape');
 	await expect(help).toBeFocused();
+});
+
+test('source link is a same-tab link at the page bottom', async ({ page }) => {
+	const footer = page.locator('footer');
+	const source = page.getByRole('link', { name: 'View source on GitHub' });
+	await expect(source).toHaveAttribute('href', 'https://github.com/Lomzem/meettime');
+	await expect(source).not.toHaveAttribute('target', '_blank');
+
+	const position = await footer.evaluate((element) => ({
+		bottom: element.getBoundingClientRect().bottom,
+		viewport: innerHeight
+	}));
+	expect(position.viewport - position.bottom).toBeLessThanOrEqual(32);
 });
 
 test('reduced motion suppresses feature animation', async ({ page }) => {

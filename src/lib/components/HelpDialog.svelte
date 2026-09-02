@@ -20,10 +20,6 @@
 		</Dialog.Header>
 		<div class="space-y-2 text-sm text-foreground">
 			<p>Select subjects to see enrollment by day and time.</p>
-			<p>
-				The heatmap uses enrollment totals. It does not measure how many people are physically
-				present.
-			</p>
 			<p>The data comes from the Student Center. It updates daily.</p>
 		</div>
 	</Dialog.Content>

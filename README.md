@@ -4,6 +4,4 @@ Meettime helps Chico State clubs choose times for meetings and activities. It sh
 
 The data comes from the Chico State Student Center. An automatic process refreshes the data each day.
 
-The heatmap uses the number of enrolled students in each time slot. It does not measure how many people are physically present.
-
 Meettime publishes totals only. It does not publish names, instructors, rooms, class numbers, or raw records.

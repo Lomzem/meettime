@@ -276,4 +276,13 @@
 			<ScheduleHeatmap {dataset} {totals} reveal={revealHeatmap} />
 		{/if}
 	{/if}
+
+	<footer class="mt-auto border-t pt-3 text-center text-xs text-muted-foreground">
+		<a
+			href="https://github.com/Lomzem/meettime"
+			class="rounded-sm underline underline-offset-4 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+		>
+			View source on GitHub
+		</a>
+	</footer>
 </main>

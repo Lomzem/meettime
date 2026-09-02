@@ -26,13 +26,14 @@
 <section
 	aria-label="Enrollment by day and time"
 	class:heatmap-enter={reveal}
-	class="flex min-w-0 flex-col gap-3"
+	class="flex min-w-0 flex-col gap-1.5"
 >
 	{#if maximum > 0}
 		<div
+			id="enrollment-legend"
 			role="img"
 			aria-label="Relative enrollment: lower to higher."
-			class="flex shrink-0 items-center justify-end gap-2 text-xs text-muted-foreground"
+			class="flex flex-wrap items-center justify-end gap-x-2 gap-y-1 text-xs text-muted-foreground"
 		>
 			<span aria-hidden="true">Lower enrollment</span>
 			<span aria-hidden="true" class="flex overflow-hidden rounded-sm border">
@@ -54,7 +55,10 @@
 		</p>
 	{:else}
 		<div class="rounded-lg border bg-card text-card-foreground">
-			<table class="w-full table-fixed border-collapse text-center text-xs sm:text-sm">
+			<table
+				aria-describedby={maximum > 0 ? 'enrollment-legend' : undefined}
+				class="w-full table-fixed border-collapse text-center text-xs sm:text-sm"
+			>
 				<caption class="sr-only">Enrollment by weekday and time</caption>
 				<colgroup>
 					<col class="w-16 sm:w-20" />
