@@ -30,6 +30,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bunx playwright install --with-deps chromium
+      - run: bun run update:data
       - run: bun run check
       - run: bun run lint
       - run: bun run test:unit -- --run
@@ -68,12 +69,14 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: build
-      - name: Commit schedule data
+      - name: Keep scheduled workflow active
         run: |
+          if [ -n "$(git log --since='28 days ago' --grep='^chore: keep scheduled workflow active$' -1 --format=%H)" ]; then
+            exit 0
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add static/schedule.json
-          git commit -m "chore(data): refresh schedule"
+          git commit --allow-empty -m "chore: keep scheduled workflow active"
           git push
 
   deploy:
